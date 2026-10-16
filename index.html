@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K💕S💕K Ultimate App</title>
+    <!-- App Manifest & Icon Integration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e91e63">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            height: 90vh;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-header {
+            background: #e91e63;
+            color: #fff;
+            padding: 10px 15px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .profile-pic {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            cursor: pointer;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .call-btn {
+            background: #fff;
+            color: #e91e63;
+            border: none;
+            padding: 5px 6px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .user-selector, .mode-selector {
+            background: #fff;
+            color: #e91e63;
+            border: none;
+            padding: 4px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 10px;
+            outline: none;
+        }
+
+        /* 📱 ஸ்டேட்டஸ் திரை */
+        .status-screen {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(90vh - 100px);
+            background: #111;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            padding: 15px;
+            color: white;
+            overflow-y: auto;
+        }
+
+        .status-feed {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-card {
+            background: #222;
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .status-card img, .status-card video {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 15px;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sender-name {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            opacity: 0.85;
+        }
+
+        .message.sent {
+            background-color: #e91e63;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.received {
+            background-color: #e4e6eb;
+            color: #000;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-top: 1px solid #ddd;
+            background: #fff;
+            gap: 4px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .action-icon-btn {
+            background: #e91e63;
+            color: white;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        /* கால் திரை */
+        .video-call-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        #local-video {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 140px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #fff;
+            background: #222;
+            z-index: 10;
+        }
+
+        .call-status-text {
+            position: absolute;
+            top: 15px;
+            color: white;
+            font-size: 15px;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 15px;
+            border-radius: 20px;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .call-controls {
+            height: 20%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .control-btn, .end-call-btn {
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .control-btn { background: #fff; color: #333; }
+        .end-call-btn { background: #f44336; color: white; }
+    </style>
+
+    <!-- Firebase SDK CDN Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          databaseURL: "https://ksk-chat-default-rtdb.firebaseio.com",
+          projectId: "ksk-chat"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        const messagesRef = ref(database, "messages");
+        const groupMessagesRef = ref(database, "group_messages");
+        const statusRef = ref(database, "statuses");
+        const callRef = ref(database, "call");
+        const notifyRef = ref(database, "notifications");
+
+        const chatBox = document.getElementById("chat-box");
+        const input = document.getElementById("message-input");
+        const sendBtn = document.getElementById("send-btn");
+        const userSelect = document.getElementById("user-select");
+        const modeSelect = document.getElementById("mode-select");
+        const profilePic = document.getElementById("profile-pic");
+        const profileInput = document.getElementById("profile-input");
+
+        const startVideoBtn = document.getElementById("start-video-btn");
+        const startAudioBtn = document.getElementById("start-audio-btn");
+        const voiceNoteBtn = document.getElementById("voice-note-btn");
+        const mediaFileBtn = document.getElementById("media-file-btn");
+        const locationBtn = document.getElementById("location-btn");
+        const statusBtn = document.getElementById("status-btn");
+        const hiddenFileInput = document.getElementById("hidden-file-input");
+        const statusFileInput = document.getElementById("status-file-input");
+
+        const endCallBtn = document.getElementById("end-call-btn");
+        const recordAlertBtn = document.getElementById("record-alert-btn");
+        const videoCallScreen = document.getElementById("video-call-screen");
+        const statusScreen = document.getElementById("status-screen");
+        const statusFeed = document.getElementById("status-feed");
+        const closeStatusBtn = document.getElementById("close-status-btn");
+        const localVideo = document.getElementById("local-video");
+        const remoteVideo = document.getElementById("remote-video");
+        const callStatusText = document.getElementById("call-status-text");
+
+        let localStream = null;
+        let peerConnection = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        const servers = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        // ப்ரொபைல் போட்டோ மாற்றம்
+        profilePic.addEventListener("click", () => profileInput.click());
+        profileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            const currentUser = userSelect.value;
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = () => {
+                    profilePic.src = reader.result;
+                    localStorage.setItem("profile_" + currentUser, reader.result);
+                };
+            }
+        });
+
+        userSelect.addEventListener("change", () => {
+            chatBox.innerHTML = "";
+            const currentUser = userSelect.value;
+            const savedPic = localStorage.getItem("profile_" + currentUser);
+            profilePic.src = savedPic ? savedPic : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        });
+
+        modeSelect.addEventListener("change", () => {
+            chatBox.innerHTML = "";
+        });
+
+        // மெசேஜ் அனுப்புதல் (Private / Group)
+        function sendMessage() {
+          const text = input.value.trim();
+          const currentUser = userSelect.value;
+          const currentMode = modeSelect.value;
+          const targetRef = (currentMode === "group") ? groupMessagesRef : messagesRef;
+
+          if (text !== "") {
+            push(targetRef, {
+              sender: currentUser,
+              text: text,
+              type: "text",
+              timestamp: Date.now()
+            });
+            input.value = "";
+          }
+        }
+
+        sendBtn.addEventListener("click", sendMessage);
+        input.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+
+        onChildAdded(messagesRef, (snapshot) => {
+            if (modeSelect.value === "private") displayMessage(snapshot.val());
+        });
+
+        onChildAdded(groupMessagesRef, (snapshot) => {
+            if (modeSelect.value === "group") displayMessage(snapshot.val());
+        });
+
+        function displayMessage(data) {
+            const currentUser = userSelect.value;
+            const messageElement = document.createElement("div");
+            messageElement.className = (data.sender === currentUser) ? "message sent" : "message received";
+            
+            if (data.type === "voice") {
+                messageElement.innerHTML = `<span class="sender-name">${data.sender}</span><audio controls style="height:35px; width:180px;"><source src="${data.audioUrl}" type="audio/webm"></audio>`;
+            } else if (data.type === "image") {
+                messageElement.innerHTML = `<span class="sender-name">${data.sender}</span><img src="${data.mediaUrl}" style="max-width:100%; border-radius:8px; margin-top:4px;">`;
+            } else if (data.type === "video") {
+                messageElement.innerHTML = `<span class="sender-name">${data.sender}</span><video controls style="max-width:100%; border-radius:8px; margin-top:4px;"><source src="${data.mediaUrl}" type="video/mp4"></video>`;
+            } else if (data.type === "location") {
+                messageElement.innerHTML = `<span class="sender-name">${data.sender}</span>📍 <b>இருப்பிடம்:</b><br><a href="${data.mapUrl}" target="_blank" style="color: ${data.sender === currentUser ? '#fff' : '#0066cc'}; text-decoration: underline;">Google Maps-ல் காண்க</a>`;
+            } else {
+                messageElement.innerHTML = `<span class="sender-name">${data.sender}</span>${data.text}`;
+            }
+
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 📱 ஸ்டேட்டஸ் வைப்பது மற்றும் பார்ப்பது
+        statusBtn.addEventListener("click", () => {
+            statusScreen.style.display = "flex";
+        });
+
+        closeStatusBtn.addEventListener("click", () => {
+            statusScreen.style.display = "none";
+        });
+
+        const addStatusTrigger = document.createElement("button");
+        addStatusTrigger.className = "control-btn";
+        addStatusTrigger.innerText = "➕ புதிய ஸ்டேட்டஸ் வை";
+        addStatusTrigger.style.marginBottom = "10px";
+        addStatusTrigger.onclick = () => statusFileInput.click();
+
+        statusFeed.before(addStatusTrigger);
+
+        statusFileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            const currentUser = userSelect.value;
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = () => {
+                    push(statusRef, {
+                        sender: currentUser,
+                        mediaUrl: reader.result,
+                        type: file.type.startsWith("video") ? "video" : "image",
+                        timestamp: Date.now()
+                    });
+                    alert("ஸ்டேட்டஸ் வெற்றிகரமாக வைக்கப்பட்டது!");
+                };
+            }
+        });
+
+        onChildAdded(statusRef, (snapshot) => {
+            const data = snapshot.val();
+            const statusCard = document.createElement("div");
+            statusCard.className = "status-card";
+            
+            let mediaHtml = (data.type === "video") ? 
+                `<video controls><source src="${data.mediaUrl}" type="video/mp4"></video>` : 
+                `<img src="${data.mediaUrl}">`;
+
+            statusCard.innerHTML = `<b style="color:#e91e63;">${data.sender}</b>${mediaHtml}`;
+            statusFeed.prepend(statusCard);
+        });
+
+        // லொகேஷன் மற்றும் மீடியா அனுப்புதல்
+        locationBtn.addEventListener("click", () => {
+            const currentUser = userSelect.value;
+            const targetRef = (modeSelect.value === "group") ? groupMessagesRef : messagesRef;
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    push(targetRef, { sender: currentUser, mapUrl: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`, type: "location", timestamp: Date.now() });
+                });
+            }
+        });
+
+        mediaFileBtn.addEventListener("click", () => hiddenFileInput.click());
+        hiddenFileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            const currentUser = userSelect.value;
+            const targetRef = (modeSelect.value === "group") ? groupMessagesRef : messagesRef;
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = () => {
+                    push(targetRef, { sender: currentUser, mediaUrl: reader.result, type: file.type.startsWith("video") ? "video" : "image", timestamp: Date.now() });
+                };
+            }
+        });
+
+        // கால் மற்றும் வாய்ஸ் நோட் லாஜிக்
+        recordAlertBtn.addEventListener("click", () => {
+            set(notifyRef, { sender: userSelect.value, alert: "⚠️ எச்சரிக்கை: எதிரில் உள்ளவர் ரெக்கார்ட் செய்கிறார்!" });
+            alert("எச்சரிக்கை அனுப்பப்பட்டது!");
+        });
+
+        onValue(notifyRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.sender !== userSelect.value) callStatusText.innerText = data.alert;
+        });
+
+        async function startCall(audioOnly) {
+            videoCallScreen.style.display = "flex";
+            callStatusText.innerText = audioOnly ? "ஆடியோ கால்..." : "வீடியோ கால்...";
+            localVideo.style.display = audioOnly ? "none" : "block";
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: !audioOnly, audio: true });
+                if (!audioOnly) { localVideo.srcObject = localStream; await localVideo.play(); }
+
+                peerConnection = new RTCPeerConnection(servers);
+                localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+                peerConnection.ontrack = async (e) => { remoteVideo.srcObject = e.streams[0]; await remoteVideo.play(); callStatusText.innerText = "உரையாடல் தொடக்கம்!"; };
+                peerConnection.onicecandidate = (e) => { if (e.candidate) set(ref(database, 'call/candidate'), JSON.parse(JSON.stringify(e.candidate))); };
+
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                await set(callRef, { offer: JSON.parse(JSON.stringify(offer)) });
+
+                onValue(ref(database, 'call/answer'), async (snapshot) => {
+                    const ans = snapshot.val();
+                    if (ans && !peerConnection.currentRemoteDescription) await peerConnection.setRemoteDescription(new RTCSessionDescription(ans));
+                });
+                onValue(ref(database, 'call/candidate'), async (snapshot) => {
+                    const cand = snapshot.val();
+                    if (cand) try { await peerConnection.addIceCandidate(new RTCIceCandidate(cand)); } catch(e){}
+                });
+            } catch (err) { alert("பிழை: " + err.message); videoCallScreen.style.display = "none"; }
+        }
+
+        startVideoBtn.addEventListener("click", () => startCall(false));
+        startAudioBtn.addEventListener("click", () => startCall(true));
+
+        let isRecording = false;
+        voiceNoteBtn.addEventListener("click", async () => {
+            const currentUser = userSelect.value;
+            const targetRef = (modeSelect.value === "group") ? groupMessagesRef : messagesRef;
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(new Blob(audioChunks, { type: 'audio/webm' }));
+                        reader.onloadend = () => push(targetRef, { sender: currentUser, audioUrl: reader.result, type: "voice", timestamp: Date.now() });
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    voiceNoteBtn.style.backgroundColor = "green";
+                    voiceNoteBtn.innerText = "⏹️";
+                } catch (e) { alert("மைக் அனுமதி தேவை"); }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                voiceNoteBtn.style.backgroundColor = "#e91e63";
+                voiceNoteBtn.innerText = "🎤";
+            }
+        });
+
+        endCallBtn.addEventListener("click", () => {
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            if (peerConnection) peerConnection.close();
+            set(callRef, null);
+            set(notifyRef, null);
+            videoCallScreen.style.display = "none";
+        });
+    </script>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="profile-area">
+                <img id="profile-pic" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" title="Profile">
+                <div>
+                    <span>K💕S💕K</span><br>
+                    <select id="mode-select" class="mode-selector">
+                        <option value="private">Private Chat</option>
+                        <option value="group">Group Chat</option>
+                    </select>
+                </div>
+            </div>
+            <input type="file" id="profile-input" accept="image/*" style="display: none;">
+            
+            <div class="header-actions">
+                <button id="status-btn" class="call-btn" title="View Status">📸</button>
+                <button id="start-audio-btn" class="call-btn" title="Audio Call">📞</button>
+                <button id="start-video-btn" class="call-btn" title="Video Call">📹</button>
+                <select id="user-select" class="user-selector">
+                    <option value="Karthik">Karthik</option>
+                    <option value="Sangeetha">Sangeetha</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="chat-box" id="chat-box"></div>
+
+        <!-- 📱 ஸ்டேட்டஸ் திரை -->
+        <div class="status-screen" id="status-screen">
+            <h3 style="color: #ff4081;">K💕S💕K Status Feed</h3>
+            <div class="status-feed" id="status-feed"></div>
+            <input type="file" id="status-file-input" accept="image/*,video/*" style="display: none;">
+            <button id="close-status-btn" class="end-call-btn" style="margin-top: 10px;">Close Status ❌</button>
+        </div>
+
+        <div class="chat-input-area">
+            <button id="voice-note-btn" class="action-icon-btn" title="Voice Note">🎤</button>
+            <button id="media-file-btn" class="action-icon-btn" title="Photo/Video">📎</button>
+            <button id="location-btn" class="action-icon-btn" title="Location">📍</button>
+            <input type="file" id="hidden-file-input" accept="image/*,video/*" style="display: none;">
+            
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button id="send-btn" class="action-icon-btn">➤</button>
+        </div>
+
+        <!-- கால் திரை -->
+        <div class="video-call-screen" id="video-call-screen">
+            <div class="call-status-text" id="call-status-text">இணைக்கப்படுகிறது...</div>
+            <div class="video-container">
+                <video id="remote-video" autoplay playsinline></video>
+                <video id="local-video" autoplay playsinline muted></video>
+            </div>
+            <div class="call-controls">
+                <button id="record-alert-btn" class="control-btn" title="Alert">⚠️ Alert Rec</button>
+                <button class="end-call-btn" id="end-call-btn">End Call 📵</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
